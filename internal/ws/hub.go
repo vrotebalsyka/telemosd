@@ -311,15 +311,19 @@ func (c *Client) handleMessage(msg Message) {
 	switch msg.Type {
 	case "create-room":
 		var payload struct {
-			Name string `json:"name"`
+			RoomName string `json:"roomName"`
+			UserName string `json:"userName"`
 		}
 		json.Unmarshal(msg.Payload, &payload)
-		if payload.Name == "" {
-			payload.Name = "Room"
+		if payload.RoomName == "" {
+			payload.RoomName = "Room"
+		}
+		if payload.UserName == "" {
+			payload.UserName = "User"
 		}
 
-		room := c.Hub.CreateRoom(payload.Name)
-		c.Hub.joinRoom(c, room.ID, c.Name)
+		room := c.Hub.CreateRoom(payload.RoomName)
+		c.Hub.joinRoom(c, room.ID, payload.UserName)
 
 		c.Hub.sendToClient(c.ID, Message{
 			Type: "room-created",

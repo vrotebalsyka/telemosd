@@ -33,7 +33,7 @@ export default function RoomPage({ roomId, userName, onLeave }: Props) {
   useEffect(() => {
     if (!ws.connected) return;
     if (roomId === '__create__') {
-      ws.send({ type: 'create-room', payload: { name: `${userName}'s Room` } });
+      ws.send({ type: 'create-room', payload: { roomName: `${userName}'s Room`, userName } });
     } else {
       ws.send({ type: 'join-room', payload: { roomId, name: userName } });
     }
