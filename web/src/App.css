@@ -409,3 +409,64 @@ input {
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* Invite box */
+.invite-box {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px;
+  padding: 20px 24px;
+  max-width: 420px;
+  width: 100%;
+}
+
+.invite-link-row {
+  display: flex;
+  gap: 8px;
+}
+
+.invite-input {
+  flex: 1;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: rgba(0,0,0,0.3);
+  color: #4f8cff;
+  font-size: 13px;
+  font-family: monospace;
+  outline: none;
+  cursor: text;
+}
+
+.btn-copy {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #4f8cff;
+  color: #fff;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.btn-copy:hover {
+  background: #3a72e0;
+}
+
+.btn-invite {
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: rgba(79,140,255,0.2);
+  color: #4f8cff;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.btn-invite:hover {
+  background: rgba(79,140,255,0.35);
+}

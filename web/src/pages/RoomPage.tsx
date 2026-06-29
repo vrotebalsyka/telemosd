@@ -20,10 +20,12 @@ export default function RoomPage({ roomId, userName, onLeave }: Props) {
   const ws = useWebSocket();
   const rtc = useWebRTC();
   const [roomName, setRoomName] = useState('');
+  const [realRoomId, setRealRoomId] = useState(roomId === '__create__' ? '' : roomId);
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [chatOpen, setChatOpen] = useState(false);
   const [waiting, setWaiting] = useState(true);
   const [myId, setMyId] = useState('');
+  const [copied, setCopied] = useState(false);
   const initCalled = useRef(false);
   const otherUserIdRef = useRef('');
 
@@ -46,6 +48,7 @@ export default function RoomPage({ roomId, userName, onLeave }: Props) {
       case 'room-created': {
         const p = msg.payload;
         setRoomName(p.roomName);
+        setRealRoomId(p.roomId);
         setMyId(p.userId);
         setWaiting(true);
         break;
@@ -141,11 +144,38 @@ export default function RoomPage({ roomId, userName, onLeave }: Props) {
     onLeave();
   }, [rtc, onLeave]);
 
+  const inviteLink = realRoomId ? `${window.location.origin}/?room=${realRoomId}` : '';
+
+  const copyInviteLink = useCallback(() => {
+    if (!inviteLink) return;
+    navigator.clipboard.writeText(inviteLink).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }).catch(() => {
+      // Fallback for older browsers
+      const input = document.createElement('input');
+      input.value = inviteLink;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand('copy');
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  }, [inviteLink]);
+
   return (
     <div className="room-page">
       <div className="room-header">
         <h2>{roomName || 'Telemost'}</h2>
-        <button className="btn-leave" onClick={handleLeave}>Завершить</button>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {realRoomId && (
+            <button className="btn-invite" onClick={copyInviteLink}>
+              {copied ? '✓ Скопировано' : '🔗 Пригласить'}
+            </button>
+          )}
+          <button className="btn-leave" onClick={handleLeave}>Завершить</button>
+        </div>
       </div>
 
       <div className="room-content">
@@ -154,9 +184,27 @@ export default function RoomPage({ roomId, userName, onLeave }: Props) {
             <div className="waiting-overlay">
               <div className="waiting-spinner" />
               <p>Ожидание собеседника...</p>
-              <p style={{ fontSize: 13, color: '#666' }}>
-                {roomId === '__create__' ? 'Создание комнаты...' : `ID: ${roomId}`}
-              </p>
+              {realRoomId ? (
+                <div className="invite-box">
+                  <p style={{ fontSize: 13, color: '#aaa', marginBottom: 8 }}>
+                    Отправьте эту ссылку собеседнику:
+                  </p>
+                  <div className="invite-link-row">
+                    <input
+                      type="text"
+                      readOnly
+                      value={inviteLink}
+                      className="invite-input"
+                      onClick={(e) => (e.target as HTMLInputElement).select()}
+                    />
+                    <button className="btn-copy" onClick={copyInviteLink}>
+                      {copied ? '✓' : '📋'}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p style={{ fontSize: 13, color: '#666' }}>Создание комнаты...</p>
+              )}
             </div>
           ) : (
             <VideoGrid

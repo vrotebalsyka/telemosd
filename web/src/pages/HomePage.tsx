@@ -1,4 +1,4 @@
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 
 interface Props {
   onJoin: (roomId: string, name: string) => void;
@@ -8,10 +8,18 @@ export default function HomePage({ onJoin }: Props) {
   const [name, setName] = useState('');
   const [roomId, setRoomId] = useState('');
 
+  // Read room ID from URL ?room= parameter
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const room = params.get('room');
+    if (room) {
+      setRoomId(room);
+    }
+  }, []);
+
   const handleCreate = async (e: FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-    // We go to room page; RoomPage will create the room
     onJoin('__create__', name.trim());
   };
 
@@ -43,13 +51,13 @@ export default function HomePage({ onJoin }: Props) {
 
         <form className="home-form" onSubmit={handleJoin}>
           <input
-            placeholder="ID комнаты"
+            placeholder={roomId || 'ID комнаты'}
             value={roomId}
             onChange={e => setRoomId(e.target.value)}
             required
           />
           <button type="submit" className="btn-secondary">
-            Присоединиться
+            {roomId ? '🔗 Присоединиться к комнате' : 'Присоединиться'}
           </button>
         </form>
       </div>
