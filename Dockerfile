@@ -1,11 +1,8 @@
 # Stage 1: Build Go backend
 FROM golang:1.22-alpine AS go-builder
 WORKDIR /app
-COPY go.mod .
-RUN go mod download
-COPY cmd/ ./cmd/
-COPY internal/ ./internal/
-RUN CGO_ENABLED=0 GOOS=linux go build -o /app/server ./cmd/server
+COPY . .
+RUN go mod tidy && CGO_ENABLED=0 GOOS=linux go build -o /app/server ./cmd/server
 
 # Stage 2: Build React frontend
 FROM node:20-alpine AS web-builder
